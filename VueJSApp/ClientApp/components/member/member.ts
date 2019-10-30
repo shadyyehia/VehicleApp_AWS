@@ -5,7 +5,7 @@ import * as $ from 'jquery';
 
 @Component
 export default class MemberComponent extends Vue {
-    APIUrl: string = 'http://localhost:56045';
+    APIUrl: string = 'https://m12ikjpodf.execute-api.eu-west-3.amazonaws.com/Prod/';
     deleteMemberId: string = "";
     // $ = JQuery;
     member: member = <member>{
