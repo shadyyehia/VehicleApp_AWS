@@ -20,6 +20,14 @@ namespace AWSServerless_webAPI.Controllers
     [Route("api/[controller]")]
     public class S3ProxyController : Controller
     {
+        //////////////////////////////
+        //Shady comment:
+        //region: for the API : eu-west-3
+        //endpoint :apigateway.eu-west-3.amazonaws.com
+        ///////////////////////////////////////
+       
+
+
         IAmazonS3 S3Client { get; set; }
         ILogger Logger { get; set; }
 
