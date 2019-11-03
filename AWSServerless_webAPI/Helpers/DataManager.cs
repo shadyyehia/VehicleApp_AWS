@@ -12,29 +12,30 @@ namespace AWSServerless_webAPI.Helpers
         public static List<Vehicle> vehicles;
         static DataManager()
         {
-
+            var customer1 = new Customer() { Id = 1, Name = "Kalles Grustransporter AB", Address = "Cementvägen 8, 111 11 Södertälje" };
+            var customer2 = new Customer() { Id = 2, Name = "Johans Bulk AB", Address = "Balkvägen 12, 222 22 Stockholm" };
+            var customer3 = new Customer() { Id = 3, Name = "Haralds Värdetransporter AB", Address = "Budgetvägen 1, 333 33 Uppsala" };
             vehicles = new List<Vehicle> {
               new Vehicle {
-            Id = 1,
-            CustomerId = 1,isConnected =false,RegistrationNo="ABC123",VIN="YS2R4X20005399401" },
+            Id = 1,Owner=customer1,isConnected =false,RegistrationNo="ABC123",VIN="YS2R4X20005399401" },
               new Vehicle {
-            Id = 2,
-            CustomerId = 1,isConnected =false,RegistrationNo="DEF456",VIN="VLUR4X20009093588" },
+            Id = 2
+            ,Owner=customer1,isConnected =false,RegistrationNo="DEF456",VIN="VLUR4X20009093588" },
               new Vehicle {
-            Id = 3,
-            CustomerId = 1,isConnected =false,RegistrationNo="GHI789",VIN="VLUR4X20009048066" },
+            Id = 3
+            ,Owner=customer1,isConnected =false,RegistrationNo="GHI789",VIN="VLUR4X20009048066" },
               new Vehicle
               {
                   Id = 4,
-                  CustomerId = 2,
+                  Owner =customer2,
                   isConnected = false,
                   RegistrationNo = "JKL012",
                   VIN = "YS2R4X20005388011"
               },
               new Vehicle
               {
-                  Id = 5,
-                  CustomerId = 2,
+                  Id = 5
+                  ,Owner=customer2,
                   isConnected = false,
                   RegistrationNo = "MNO345",
                   VIN = "YS2R4X20005387949"
@@ -42,7 +43,7 @@ namespace AWSServerless_webAPI.Helpers
               new Vehicle
               {
                   Id = 6,
-                  CustomerId = 3,
+                  Owner=customer3,
                   isConnected = false,
                   RegistrationNo = "PQR678",
                   VIN = "VLUR4X20009048066"
@@ -50,7 +51,7 @@ namespace AWSServerless_webAPI.Helpers
               new Vehicle
               {
                   Id = 7,
-                  CustomerId = 3,
+                  Owner=customer3,
                   isConnected = false,
                   RegistrationNo = "STU901",
                   VIN = "YS2R4X20005387055"

@@ -10,7 +10,7 @@ namespace AWSServerless_webAPI.Models
         public int Id { get; set; }
         public string VIN { get; set; }
         public string RegistrationNo { get; set; }
-        public int CustomerId{ get; set; }
+        public Customer Owner{ get; set; }
         public bool isConnected { get; set; }
     }
 }

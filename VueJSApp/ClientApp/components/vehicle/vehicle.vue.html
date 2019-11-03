@@ -5,22 +5,50 @@
             <div class="col-md-12">
                 <h4>Vehicle List</h4>
                 <div class="table-responsive">
-                    <table id="mytable" class="table table-bordred table-striped">
+
+                    <table id="vehicleTable" v-if="vehicleList.length" class="table table-bordred table-striped">
                         <thead>
-                            <th>No.</th>
-                            <th>VIN</th>
-                            <th>Registration No.</th>
-                            <th>Is Connected ?</th>
+                        <th>No.</th>
+                        <th>VIN</th>
+                        <th>Registration No.</th>
+                        <th>Customer</th>
+                        <th>Status</th>
                         </thead>
+                        <thead>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th style="padding-right: 10px;">
+                            <div class="form-group">
+                                <select class="form-control" v-model="selectedCustomer">
+                                    <option value="-1"></option>
+                                    <option value="1">cust1</option>
+                                    <option value="2">cust2</option>
+                                </select>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="form-group">
+                                <select class="form-control" v-model="selectedStatus">
+                                    <option value="-1"></option>
+                                    <option value="true">Connected</option>
+                                    <option value="false">Disconnected</option>
+                                </select>
+                            </div>
+                        </th>
+                        </thead>
+
                         <tbody>
                             <tr v-for="(vehicle, index) in vehicleList">
                                 <td> {{index + 1}}</td>
                                 <td> {{ vehicle.vin }}</td>
                                 <td> {{ vehicle.registrationNo}}</td>
+                                <td> {{ vehicle.owner.name}}</td>
                                 <td> {{ vehicle.isConnected}}</td>
                             </tr>
                         </tbody>
                     </table>
+                    <p v-else><em>Loading...</em></p>
                 </div>
             </div>
         </div>
