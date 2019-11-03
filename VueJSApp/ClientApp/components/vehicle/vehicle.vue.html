@@ -1,0 +1,33 @@
+<template>
+    <div class="container">
+      
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Vehicle List</h4>
+                <div class="table-responsive">
+                    <table id="mytable" class="table table-bordred table-striped">
+                        <thead>
+                            <th>No.</th>
+                            <th>VIN</th>
+                            <th>Registration No.</th>
+                            <th>Is Connected ?</th>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(vehicle, index) in vehicleList">
+                                <td> {{index + 1}}</td>
+                                <td> {{ vehicle.vin }}</td>
+                                <td> {{ vehicle.registrationNo}}</td>
+                                <td> {{ vehicle.isConnected}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</template>
+<style src="./vehicle.css" />
+<script src="./vehicle.ts"></script>

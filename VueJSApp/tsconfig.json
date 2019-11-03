@@ -7,8 +7,9 @@
     "target": "es5",
     "sourceMap": true,
     "skipDefaultLibCheck": true,
-    "strict": true,
-    "types": ["webpack-env"]
+    "strict": false,
+    "types": [ "webpack-env" ],
+    "lib": [ "dom", "es2015" ]
   },
   "exclude": [
       "bin",

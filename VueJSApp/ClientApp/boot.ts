@@ -1,16 +1,17 @@
 import './css/site.css';
 import 'bootstrap';
+import vehicle from './vehicleHub'
 import Vue from 'vue';
+
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 
 const routes = [
-    { path: '/', component: require('./components/member/member.vue.html') },
-    { path: '/counter', component: require('./components/counter/counter.vue.html') },
-    { path: '/fetchdata', component: require('./components/fetchdata/fetchdata.vue.html') },
-  
+    { path: '/', component: require('./components/vehicle/vehicle.vue.html') }
 ];
 
+
+Vue.use(vehicle);
 new Vue({
     el: '#app-root',
     router: new VueRouter({ mode: 'history', routes: routes }),
