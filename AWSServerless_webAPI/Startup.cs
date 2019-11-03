@@ -29,7 +29,8 @@ namespace AWSServerless_webAPI
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-           
+            services.AddSingleton(typeof(IDataManager), typeof(DataManager));
+            services.AddSingleton(typeof(ITimerManager), typeof(TimerManager));
             services.AddAutoMapper(typeof(Startup));
             var clientURL = Configuration[Startup.ClientURL];
             services.AddCors(options =>

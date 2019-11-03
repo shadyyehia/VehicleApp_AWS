@@ -17,22 +17,41 @@ namespace AWSServerless_webAPI.Controllers
     public class VehicleController : ControllerBase
     {
         private readonly IHubContext<VehicleHub, IVehicleHub> hubContext;
-     
-
-        public VehicleController(IHubContext<VehicleHub, IVehicleHub> vehicleHub)
+        ITimerManager currentTimeManager;
+        IDataManager datamanager;
+        
+        public VehicleController(IHubContext<VehicleHub, IVehicleHub> vehicleHub, IDataManager datamanager,ITimerManager timermanager )
         {
+            this.datamanager = datamanager;
             this.hubContext = vehicleHub;
-          
+            currentTimeManager = timermanager;
+
+
         }
+        // Post: api/Vehicles
+        [HttpGet]
+        [ActionName("monitor")]
+        public IActionResult Monitor()
+        {
+            currentTimeManager.Configure(() =>
+            hubContext.Clients.All.VehicleStatusChange(this.datamanager.GetData()),500,5000);
+            return Ok(new { Message = "Request Completed" });
+        }
+
+        [HttpPost]
+        [ActionName("filterData")]
+        public List<Vehicle> FilterData([FromBody]dynamic filter)
+        {
+            return this.datamanager.FilterData(filter);
+            
+        }
+
         // GET: api/Vehicles
         [HttpGet]
-        [ActionName("getVehiclesList")]
-        public IActionResult GetVehicles()
+        [ActionName("getCustomers")]
+        public IEnumerable<Customer> getCustomers()
         {
-            //delay for a second first load , then update each 3 seconds.
-            var timerManager = new TimerManager(() =>
-            hubContext.Clients.All.VehicleStatusChange(DataManager.GetData()),1000,60000);
-            return Ok(new { Message = "Request Completed" });
+            return datamanager.GetCustomers();
         }
 
 
@@ -45,7 +64,7 @@ namespace AWSServerless_webAPI.Controllers
         [ActionName("ping")]
         public bool IsConnected(int id)
         {
-            return DataManager.isConnected(id);
+            return this.datamanager.isConnected(id);
         }
         //[HttpGet]
         //[ActionName("updateV")]

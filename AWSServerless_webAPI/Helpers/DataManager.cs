@@ -1,20 +1,25 @@
 ﻿using AWSServerless_webAPI.Models;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using AWSServerless_webAPI.Helpers;
 
 namespace AWSServerless_webAPI.Helpers
 {
-    public static class DataManager
+    public  class DataManager : IDataManager
     {
-        public static List<Vehicle> vehicles;
-        static DataManager()
+        List<Vehicle> vehicles;
+        dynamic currentFilter;
+        List<Customer> customers;
+        public DataManager()
         {
-            var customer1 = new Customer() { Id = 1, Name = "Kalles Grustransporter AB", Address = "Cementvägen 8, 111 11 Södertälje" };
+            customers = new List<Customer>();
+              var customer1 = new Customer() { Id = 1, Name = "Kalles Grustransporter AB", Address = "Cementvägen 8, 111 11 Södertälje" };
             var customer2 = new Customer() { Id = 2, Name = "Johans Bulk AB", Address = "Balkvägen 12, 222 22 Stockholm" };
-            var customer3 = new Customer() { Id = 3, Name = "Haralds Värdetransporter AB", Address = "Budgetvägen 1, 333 33 Uppsala" };
+            var customer3 = new Customer() { Id = 3, Name = "Haralds Vardetransporter AB", Address = "Budgetvägen 1, 333 33 Uppsala" };
+            customers.Add(customer1);
+            customers.Add(customer2);
+            customers.Add(customer3);
             vehicles = new List<Vehicle> {
               new Vehicle {
             Id = 1,Owner=customer1,isConnected =false,RegistrationNo="ABC123",VIN="YS2R4X20005399401" },
@@ -58,17 +63,41 @@ namespace AWSServerless_webAPI.Helpers
               } };
         }
 
-        public static  List<Vehicle> GetData()
+        public  List<Vehicle> GetData()
         {
             //update the status of the vehicles randomly before sending them
             randomUpdate();
-            return vehicles;
+            if (currentFilter != null)
+                return FilterData(currentFilter);
+            else
+                return vehicles;
+            
         }
-        static void randomUpdate()
+
+        
+        void randomUpdate()
         {
             var random = new Random();
           
             vehicles.ForEach(x => x.isConnected = random.Next(2) == 1);
+           
+        }
+        public List<Vehicle> FilterData(dynamic filter)
+        {
+            currentFilter = filter;
+            bool? isConnected = filter.status?.Value;
+            long? customerId = filter.customerId?.Value;
+
+            IEnumerable<Vehicle> query = vehicles;
+            if (customerId.HasValue && customerId.Value != -1)
+                query = query.Where(x => x.Owner.Id == customerId);
+            if (isConnected.HasValue )
+                query = query.Where(x => x.isConnected == isConnected.Value);
+            List<Vehicle> filteredList = query.ToList();
+            return filteredList;
+        }
+        public List<Customer> GetCustomers() {
+            return customers;
         }
         /// <summary>
         /// returns false if the collection is empty, if the vehicle is not connected or 
@@ -76,7 +105,7 @@ namespace AWSServerless_webAPI.Helpers
         /// </summary>
         /// <param name="vid"></param>
         /// <returns></returns>
-        public static bool isConnected(int vid)
+        public bool isConnected(int vid)
         {
             if (vehicles == null) return false;
             var Vehicle = vehicles.FirstOrDefault(v => v.Id == vid);
@@ -85,6 +114,8 @@ namespace AWSServerless_webAPI.Helpers
             } ;
             return false;
         }
+
+      
     }
 
 }

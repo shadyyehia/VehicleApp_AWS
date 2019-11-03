@@ -12,16 +12,18 @@ export default class VehicleComponent extends Vue {
    
 
     vehicleList: vehicle[] = [];
-    //@Prop() selectedCustomer: string;
-    //@Prop() selectedStatus: string;
-    //@Watch('selectedStatus') onselectedStatus(new_s, old_s) {
+    CustomerList: customer[] = [];
+    @Prop() selectedCustomerId: number;
+    @Prop() selectedStatus: any;
+    @Watch('selectedStatus') onselectedStatus(new_s, old_s) {
 
-    //    this.vehicleList  = this.vehicleList.filter(x => x.isConnected == new_s);
-    //}
-    //@Watch('selectedCustomer') onselectedCustomer(new_s, old_s) {
-
-    //    this.vehicleList = this.vehicleList.filter(x => x.owner.name == new_s);
-    //}
+        this.filterData();
+        
+    }
+    @Watch('selectedCustomerId') onselectedCustomer(new_s, old_s) {
+        this.filterData();
+       
+    }
     created() {
         
         // Listen to score changes coming from SignalR events
@@ -33,22 +35,64 @@ export default class VehicleComponent extends Vue {
     }
     onStatusChanged({ data }) {
         this.vehicleList = data;
+        console.log("notification from SignalR");
         //if (this.question.id !== questionId) return
         //Object.assign(this.question, { score })
     }
-    mounted() {       
-        this.getvehicleList();
+    mounted() {  
+        this.fillCustomerList();
+        this.startMonitor();
     }
-  
-  
-    getvehicleList() {
+    convertBoolToText(val) {
+        if (val == true)
+            return "Connected"
+
+        else if (val == false)
+            return "Disconnected"
+    }
+    fillCustomerList() {
         axios({
-            method: 'get',
-            url: this.settings.apiURL +'/api/vehicle/getvehiclesList'
+            method: 'GET',
+            url: this.settings.apiURL + '/api/vehicle/getCustomers'
         }).then((response: any) => {
-           
-            //console.log(response.data);
-            //this.vehicleList = response.data;
+            this.CustomerList = response.data;
+            
+
+            console.log(response.data);
+        })
+            .catch((error: any) => {
+                console.log(error);
+            });
+    }
+    filterData() {
+        var status = null
+        if (this.selectedStatus == 1)
+            status = true;
+        else if (this.selectedStatus == 0)
+            status = false;
+
+
+        axios({
+            method: 'POST',
+            url: this.settings.apiURL + '/api/vehicle/filterData',
+            data: {
+                customerId: this.selectedCustomerId,
+                status: status
+            }
+        }).then((response: any) => {
+            this.vehicleList = response.data;
+            console.log("data filtered");
+        })
+            .catch((error: any) => {
+                console.log(error);
+            });
+    }
+    startMonitor() {
+        axios({
+            method: 'GET',
+            url: this.settings.apiURL + '/api/vehicle/monitor' 
+        }).then((response: any) => {
+            console.log(response.data);
         })
             .catch((error: any) => {
                 console.log(error);
@@ -64,4 +108,9 @@ interface vehicle {
     registrationno: number;
     owner: { id: number, name: string, address: string };
     isConnected: boolean;
+}
+interface customer{
+    id: number;
+    name: string;
+    address:string
 }

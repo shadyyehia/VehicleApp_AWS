@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AWSServerless_webAPI.Helpers
 {
-    public class TimerManager
+    public class TimerManager : ITimerManager
     {
         private Timer _timer;
         private AutoResetEvent _autoResetEvent;
@@ -14,14 +14,18 @@ namespace AWSServerless_webAPI.Helpers
 
         public DateTime TimerStarted { get; }
 
-        public TimerManager(Action action,int firstdelayByMilliSeconds,int period)
+        public TimerManager()
         {
-            _action = action;
-            _autoResetEvent = new AutoResetEvent(false);
-            _timer = new Timer(Execute, _autoResetEvent, firstdelayByMilliSeconds, period);
             TimerStarted = DateTime.Now;
+            _autoResetEvent = new AutoResetEvent(false);
         }
 
+        public void Configure(Action action, int firstdelayByMilliSeconds, int period)
+        {
+            _action = action;   
+            if(_timer!=null) _timer.Dispose();
+            _timer = new Timer(Execute, _autoResetEvent, firstdelayByMilliSeconds, period);
+        }
         public void Execute(object stateInfo)
         {
             _action();
@@ -30,6 +34,10 @@ namespace AWSServerless_webAPI.Helpers
             {
                 _timer.Dispose();
             }
+        }
+        public void Dispose()
+        {
+            _timer.Dispose();
         }
     }
 }
