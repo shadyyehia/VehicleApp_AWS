@@ -30,10 +30,10 @@ namespace AWSServerless_webAPI.Helpers
         {
             _action();
             //to stop updating the vehicles after 10 minutes
-            if ((DateTime.Now - TimerStarted).Minutes > 10)
-            {
-                _timer.Dispose();
-            }
+            //if ((DateTime.Now - TimerStarted).Minutes > 10)
+            //{
+            //    _timer.Dispose();
+            //}
         }
         public void Dispose()
         {

@@ -34,7 +34,7 @@ namespace AWSServerless_webAPI.Controllers
         public IActionResult Monitor()
         {
             currentTimeManager.Configure(() =>
-            hubContext.Clients.All.VehicleStatusChange(this.datamanager.GetData()),500,5000);
+            hubContext.Clients.All.VehicleStatusChange(this.datamanager.GetData()),500,3000);
             return Ok(new { Message = "Request Completed" });
         }
 

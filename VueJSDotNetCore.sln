@@ -7,6 +7,26 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VueJSDotNetCore", "VueJSApp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSServerless_webAPI", "AWSServerless_webAPI\AWSServerless_webAPI.csproj", "{E5A9944B-079E-4F58-BA42-93010C6B043C}"
 EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Vehicle_ClientApp", "Vehicle_ClientApp\", "{4D12D886-2259-4A38-B2C5-F84E8E93E675}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_60851"
+		Debug.AspNetCompiler.PhysicalPath = "Vehicle_ClientApp\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_60851\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_60851"
+		Release.AspNetCompiler.PhysicalPath = "Vehicle_ClientApp\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_60851\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "60851"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +41,10 @@ Global
 		{E5A9944B-079E-4F58-BA42-93010C6B043C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5A9944B-079E-4F58-BA42-93010C6B043C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5A9944B-079E-4F58-BA42-93010C6B043C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D12D886-2259-4A38-B2C5-F84E8E93E675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D12D886-2259-4A38-B2C5-F84E8E93E675}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D12D886-2259-4A38-B2C5-F84E8E93E675}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D12D886-2259-4A38-B2C5-F84E8E93E675}.Release|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
