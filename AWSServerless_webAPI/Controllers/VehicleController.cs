@@ -34,7 +34,7 @@ namespace AWSServerless_webAPI.Controllers
         public IActionResult Monitor()
         {
             currentTimeManager.Configure(() =>
-            hubContext.Clients.All.VehicleStatusChange(this.datamanager.GetData()),500,3000);
+            hubContext.Clients.All.VehicleStatusChange(this.datamanager.GetData_SignalR()),500,3000);
             return Ok(new { Message = "Request Completed" });
         }
 
@@ -44,6 +44,14 @@ namespace AWSServerless_webAPI.Controllers
         {
             return this.datamanager.FilterData(filter);
             
+        }
+
+        [HttpGet]
+        [ActionName("monitor_noSignalR")]
+        public List<Vehicle> GetData_Polling()
+        {
+            return this.datamanager.GetData_NoSignalR();
+
         }
 
         // GET: api/Vehicles

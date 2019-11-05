@@ -1,4 +1,5 @@
-﻿<template>
+﻿
+<template>
     <div class="container">
         <div class="row">
             <div class="col-md-12">
@@ -56,13 +57,20 @@
 </template>
 
 <script lang="ts">
+
     import Vue from "vue";
     import { Component, Prop, Watch } from "vue-property-decorator";
     import axios from "axios";
-
+declare var process : {
+  env: {
+    NODE_ENV: string;
+    VUE_APP_WEBAPI:string;
+    VUE_APP_SignalR_ENABLED:string
+  }
+}
     @Component
     export default class VehicleListComponent extends Vue {
-        settings: any = require("../params.json");
+       
         // $ = JQuery;
 
         vehicleList: IVehicle[] = [];
@@ -77,10 +85,12 @@
         }
         created() {
             // listen to score changes coming from SignalR events
+            if(this.$vehicleHub)
             this.$vehicleHub.$on("status-changed", this.onStatusChanged);
         }
         beforeDestroy() {
             // make sure to cleanup SignalR event handlers when removing the component
+            if(this.$vehicleHub)
             this.$vehicleHub.$off("status-changed", this.onStatusChanged);
         }
         // tslint:disable-next-line:typedef
@@ -103,18 +113,17 @@
             }
         }
         fillCustomerList() {
-            axios({
-                method: "GET",
-                url: this.settings.apiURL + "/api/vehicle/getCustomers"
-            })
-                .then((response: any) => {
+           var promise1 = axios.get(process.env.VUE_APP_WEBAPI + "/api/vehicle/getCustomers");
+            
+            promise1.then((response: any) => {
                     this.CustomerList = response.data;
+                    return response.data;
 
-                    console.log(response.data);
-                })
-                .catch((error: any) => {
-                    console.log(error);
+                    //console.log(response.data);
+                }).catch((error: any) => {
+                    //console.log(error);
                 });
+            return promise1;
         }
         filterData() {
             var status = null;
@@ -126,7 +135,7 @@
 
             axios({
                 method: "POST",
-                url: this.settings.apiURL + "/api/vehicle/filterData",
+                url: process.env.VUE_APP_WEBAPI + "/api/vehicle/filterData",
                 data: {
                     customerId: this.selectedCustomerId,
                     status: status
@@ -141,16 +150,33 @@
                 });
         }
         startMonitor() {
-            axios({
-                method: "GET",
-                url: this.settings.apiURL + "/api/vehicle/monitor"
-            })
-                .then((response: any) => {
-                    console.log(response.data);
-                })
-                .catch((error: any) => {
-                    console.log(error);
-                });
+            if(process.env.VUE_APP_SignalR_ENABLED == "true")
+            {
+                var promise = axios.get(process.env.VUE_APP_WEBAPI + "/api/vehicle/monitor");
+                    promise.then((response: any) => {
+                        console.log(response.data);
+                    }).catch((error: any) => {
+                        console.log(error);
+                    });
+                return promise;
+            }
+            else{
+            setInterval(() => {
+                 this.montor_noSignalR();
+            }, 5000);    
+           }
+           
+        }
+        montor_noSignalR()
+        {
+            var promise = axios.get(process.env.VUE_APP_WEBAPI + "/api/vehicle/monitor_noSignalR");
+                    promise.then((response: any) => {
+                    this.vehicleList = response.data;
+                    console.log("Long polling used, SignalR is not enabled in configurationsy");
+                }).catch((error: any) => {
+                        console.log(error);
+                    });
+                return promise;
         }
     }
 

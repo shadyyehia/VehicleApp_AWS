@@ -63,7 +63,7 @@ namespace AWSServerless_webAPI.Helpers
               } };
         }
 
-        public  List<Vehicle> GetData()
+        public  List<Vehicle> GetData_SignalR()
         {
             //update the status of the vehicles randomly before sending them
             randomUpdate();
@@ -73,8 +73,18 @@ namespace AWSServerless_webAPI.Helpers
                 return vehicles;
             
         }
+        public List<Vehicle> GetData_NoSignalR()
+        {
+            //update the status of the vehicles randomly before sending them
+            randomUpdate();
+            if (currentFilter != null)
+                return FilterData(currentFilter);
+            else
+                return vehicles;
 
-        
+        }
+
+
         void randomUpdate()
         {
             var random = new Random();

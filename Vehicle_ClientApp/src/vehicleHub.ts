@@ -9,10 +9,11 @@ declare module "vue/types/vue" {
 declare var Promise: any;
 export default {
   install() {
-    let setting: any = require("./params.json");
 
+    // tslint:disable-next-line:triple-equals
+    if(process.env.VUE_APP_SignalR_ENABLED == "true") {
     const connection = new HubConnectionBuilder()
-      .withUrl(setting.apiURL + setting.hubPathString)
+      .withUrl(process.env.VUE_APP_WEBAPI + process.env.VUE_APP_HUB_PATH_STRING)
       .configureLogging(LogLevel.Information)
       .build();
     // use new Vue instance as an event bus
@@ -43,4 +44,5 @@ export default {
 
     start();
   }
+}
 };

@@ -19,6 +19,7 @@ namespace AWSServerless_webAPI
         public const string ClientURL = "ClientURL";
         const string MyAllowSpecificOrigins = "CORSPolicy";
         const string HubPathString = "HubPathString";
+        const string SignalR_Enabled= "SignalR_Enabled";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -67,10 +68,18 @@ namespace AWSServerless_webAPI
 
             app.UseHttpsRedirection();
             app.UseMvc();
-            app.UseSignalR(route =>
+            //TODO: Remove this flag,when fixed on production
+            string signalREnabled =Configuration[SignalR_Enabled];
+            bool SR_Enabled;
+            Boolean.TryParse(signalREnabled, out SR_Enabled);
+
+            if (SR_Enabled) 
             {
-                route.MapHub<VehicleHub>(Configuration[Startup.HubPathString]);
-            });
+                app.UseSignalR(route =>
+                {
+                    route.MapHub<VehicleHub>(Configuration[Startup.HubPathString]);
+                });
+            }
           
         }
     }
