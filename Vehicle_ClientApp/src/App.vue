@@ -1,18 +1,18 @@
 <template>
   <div id="app">
-    <Vehicle/>     
+    <VehicleList />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import HelloWorld from "./components/HelloWorld.vue";
-import Vehicle from "./components/vehicle/vehicle.vue";
+import VehicleList from "./components/VehicleList.vue";
 
 @Component({
   components: {
     HelloWorld,
-    Vehicle
+      VehicleList
   }
 })
 export default class App extends Vue {}
