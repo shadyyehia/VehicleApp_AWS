@@ -168,7 +168,7 @@ export default class VehicleListComponent extends Vue {
     } else {
       setInterval(() => {
         this.montor_noSignalR();
-      }, 5000);
+      }, 10000);
     }
   }
   montor_noSignalR() {

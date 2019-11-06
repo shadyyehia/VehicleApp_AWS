@@ -10,7 +10,7 @@ declare var Promise: any;
 export default {
   install() {
     // tslint:disable-next-line:triple-equals
-    if (process.env.VUE_APP_SignalR_ENABLED == "true") {
+    if (process!.env.VUE_APP_SignalR_ENABLED === "true") {
       const connection = new HubConnectionBuilder()
         .withUrl(
           process.env.VUE_APP_WEBAPI! + process.env.VUE_APP_HUB_PATH_STRING
