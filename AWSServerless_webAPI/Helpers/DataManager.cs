@@ -8,9 +8,9 @@ namespace AWSServerless_webAPI.Helpers
 {
     public  class DataManager : IDataManager
     {
-        List<Vehicle> vehicles;
+        public List<Vehicle> vehicles { get; set; }
         dynamic currentFilter;
-        List<Customer> customers;
+        public List<Customer> customers { get; set; }
         public DataManager()
         {
             customers = new List<Customer>();
