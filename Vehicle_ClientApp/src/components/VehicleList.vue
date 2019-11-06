@@ -1,287 +1,291 @@
-﻿
-<template>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h4>Vehicle List</h4>
-                <div class="table-responsive">
-                    <table id="vehicleTable" class="table table-bordred table-striped">
-                        <thead>
-                        <th>No.</th>
-                        <th>VIN</th>
-                        <th>Registration No.</th>
-                        <th>Customer</th>
-                        <th>Status</th>
-                        </thead>
-                        <thead>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th style="padding-right: 10px;">
-                            <div class="form-group">
-                                <select class="form-control" v-model="selectedCustomerId">
-                                    <option v-bind:value="-1"></option>
-                                    <option v-for="cust in CustomerList"
-                                            v-bind:value="cust.id"
-                                            v-bind:key="cust.id">
-                                        {{ cust.name }}
-                                    </option>
-                                </select>
-                            </div>
-                        </th>
-                        <th>
-                            <div class="form-group">
-                                <select class="form-control" v-model="selectedStatus">
-                                    <option :value="-1"></option>
-                                    <option :value="1">Connected</option>
-                                    <option :value="0">Disconnected</option>
-                                </select>
-                            </div>
-                        </th>
-                        </thead>
-
-                        <tbody>
-                            <tr v-for="(vehicle, index) in vehicleList" v-bind:key="index">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ vehicle.vin }}</td>
-                                <td>{{ vehicle.registrationNo }}</td>
-                                <td>{{ vehicle.owner.name }}</td>
-                                <td>{{ convertBoolToText(vehicle.isConnected) }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+﻿<template>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h4>Vehicle List</h4>
+        <div class="table-responsive">
+          <table id="vehicleTable" class="table table-bordred table-striped">
+            <thead>
+              <th>No.</th>
+              <th>VIN</th>
+              <th>Registration No.</th>
+              <th>Customer</th>
+              <th>Status</th>
+            </thead>
+            <thead>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th style="padding-right: 10px;">
+                <div class="form-group">
+                  <select class="form-control" v-model="selectedCustomerId">
+                    <option v-bind:value="-1"></option>
+                    <option
+                      v-for="cust in CustomerList"
+                      v-bind:value="cust.id"
+                      v-bind:key="cust.id"
+                    >
+                      {{ cust.name }}
+                    </option>
+                  </select>
                 </div>
-            </div>
+              </th>
+              <th>
+                <div class="form-group">
+                  <select class="form-control" v-model="selectedStatus">
+                    <option :value="-1"></option>
+                    <option :value="1">Connected</option>
+                    <option :value="0">Disconnected</option>
+                  </select>
+                </div>
+              </th>
+            </thead>
+
+            <tbody>
+              <tr v-for="(vehicle, index) in vehicleList" v-bind:key="index">
+                <td>{{ index + 1 }}</td>
+                <td>{{ vehicle.vin }}</td>
+                <td>{{ vehicle.registrationNo }}</td>
+                <td>{{ vehicle.owner.name }}</td>
+                <td>{{ convertBoolToText(vehicle.isConnected) }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script lang="ts">
-
-    import Vue from "vue";
-    import { Component, Prop, Watch } from "vue-property-decorator";
-    import axios from "axios";
-declare var process : {
+import Vue from "vue";
+import { Component, Prop, Watch } from "vue-property-decorator";
+import axios from "axios";
+declare var process: {
   env: {
     NODE_ENV: string;
-    VUE_APP_WEBAPI:string;
-    VUE_APP_SignalR_ENABLED:string
+    VUE_APP_WEBAPI: string;
+    VUE_APP_SignalR_ENABLED: string;
+  };
+};
+@Component
+export default class VehicleListComponent extends Vue {
+  // $ = JQuery;
+
+  vehicleList: IVehicle[] = [];
+  CustomerList: ICustomer[] = [];
+  @Prop() selectedCustomerId: number | undefined;
+  @Prop() selectedStatus: any;
+  @Watch("selectedStatus") onselectedStatus() {
+    this.filterData();
+  }
+  @Watch("selectedCustomerId") onselectedCustomer() {
+    this.filterData();
+  }
+  created() {
+    // listen to score changes coming from SignalR events
+    if (this.$vehicleHub)
+      this.$vehicleHub.$on("status-changed", this.onStatusChanged);
+  }
+  beforeDestroy() {
+    // make sure to cleanup SignalR event handlers when removing the component
+    if (this.$vehicleHub)
+      this.$vehicleHub.$off("status-changed", this.onStatusChanged);
+  }
+  // tslint:disable-next-line:typedef
+  onStatusChanged({ data }: { data: any }) {
+    this.vehicleList = data;
+    console.log("notification from SignalR");
+    // if (this.question.id !== questionId) return
+    // object.assign(this.question, { score })
+  }
+  mounted() {
+    this.fillCustomerList();
+    this.startMonitor();
+  }
+  // tslint:disable-next-line:typedef
+  convertBoolToText(val: boolean) {
+    if (val === true) {
+      return "Connected";
+    } else if (val === false) {
+      return "Disconnected";
+    }
+  }
+  fillCustomerList() {
+    var promise1 = axios.get(
+      process.env.VUE_APP_WEBAPI + "/api/vehicle/getCustomers"
+    );
+
+    promise1
+      .then((response: any) => {
+        this.CustomerList = response.data;
+        return response.data;
+
+        //console.log(response.data);
+      })
+      .catch((error: any) => {
+        //console.log(error);
+      });
+    return promise1;
+  }
+  filterData() {
+    var status = null;
+    if (this.selectedStatus === 1) {
+      status = true;
+    } else if (this.selectedStatus === 0) {
+      status = false;
+    }
+
+    axios({
+      method: "POST",
+      url: process.env.VUE_APP_WEBAPI + "/api/vehicle/filterData",
+      data: {
+        customerId: this.selectedCustomerId,
+        status: status
+      }
+    })
+      .then((response: any) => {
+        this.vehicleList = response.data;
+        console.log("data filtered");
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
+  }
+  startMonitor() {
+    if (process.env.VUE_APP_SignalR_ENABLED == "true") {
+      var promise = axios.get(
+        process.env.VUE_APP_WEBAPI + "/api/vehicle/monitor"
+      );
+      promise
+        .then((response: any) => {
+          console.log(response.data);
+        })
+        .catch((error: any) => {
+          console.log(error);
+        });
+      return promise;
+    } else {
+      setInterval(() => {
+        this.montor_noSignalR();
+      }, 5000);
+    }
+  }
+  montor_noSignalR() {
+    var promise = axios.get(
+      process.env.VUE_APP_WEBAPI + "/api/vehicle/monitor_noSignalR"
+    );
+    promise
+      .then((response: any) => {
+        this.vehicleList = response.data;
+        console.log(
+          "Long polling used, SignalR is not enabled in configurationsy"
+        );
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
+    return promise;
   }
 }
-    @Component
-    export default class VehicleListComponent extends Vue {
-       
-        // $ = JQuery;
 
-        vehicleList: IVehicle[] = [];
-        CustomerList: ICustomer[] = [];
-        @Prop() selectedCustomerId: number | undefined;
-        @Prop() selectedStatus: any;
-        @Watch("selectedStatus") onselectedStatus() {
-            this.filterData();
-        }
-        @Watch("selectedCustomerId") onselectedCustomer() {
-            this.filterData();
-        }
-        created() {
-            // listen to score changes coming from SignalR events
-            if(this.$vehicleHub)
-            this.$vehicleHub.$on("status-changed", this.onStatusChanged);
-        }
-        beforeDestroy() {
-            // make sure to cleanup SignalR event handlers when removing the component
-            if(this.$vehicleHub)
-            this.$vehicleHub.$off("status-changed", this.onStatusChanged);
-        }
-        // tslint:disable-next-line:typedef
-        onStatusChanged({ data }: { data: any }) {
-            this.vehicleList = data;
-            console.log("notification from SignalR");
-            // if (this.question.id !== questionId) return
-            // object.assign(this.question, { score })
-        }
-        mounted() {
-            this.fillCustomerList();
-            this.startMonitor();
-        }
-        // tslint:disable-next-line:typedef
-        convertBoolToText(val: boolean) {
-            if (val === true) {
-                return "Connected";
-            } else if (val === false) {
-                return "Disconnected";
-            }
-        }
-        fillCustomerList() {
-           var promise1 = axios.get(process.env.VUE_APP_WEBAPI + "/api/vehicle/getCustomers");
-            
-            promise1.then((response: any) => {
-                    this.CustomerList = response.data;
-                    return response.data;
-
-                    //console.log(response.data);
-                }).catch((error: any) => {
-                    //console.log(error);
-                });
-            return promise1;
-        }
-        filterData() {
-            var status = null;
-            if (this.selectedStatus === 1) {
-                status = true;
-            } else if (this.selectedStatus === 0) {
-                status = false;
-            }
-
-            axios({
-                method: "POST",
-                url: process.env.VUE_APP_WEBAPI + "/api/vehicle/filterData",
-                data: {
-                    customerId: this.selectedCustomerId,
-                    status: status
-                }
-            })
-                .then((response: any) => {
-                    this.vehicleList = response.data;
-                    console.log("data filtered");
-                })
-                .catch((error: any) => {
-                    console.log(error);
-                });
-        }
-        startMonitor() {
-            if(process.env.VUE_APP_SignalR_ENABLED == "true")
-            {
-                var promise = axios.get(process.env.VUE_APP_WEBAPI + "/api/vehicle/monitor");
-                    promise.then((response: any) => {
-                        console.log(response.data);
-                    }).catch((error: any) => {
-                        console.log(error);
-                    });
-                return promise;
-            }
-            else{
-            setInterval(() => {
-                 this.montor_noSignalR();
-            }, 5000);    
-           }
-           
-        }
-        montor_noSignalR()
-        {
-            var promise = axios.get(process.env.VUE_APP_WEBAPI + "/api/vehicle/monitor_noSignalR");
-                    promise.then((response: any) => {
-                    this.vehicleList = response.data;
-                    console.log("Long polling used, SignalR is not enabled in configurationsy");
-                }).catch((error: any) => {
-                        console.log(error);
-                    });
-                return promise;
-        }
-    }
-
-    // tslint:disable-next-line:class-name
-    interface IVehicle {
-        id: number;
-        name: string;
-        vin: string;
-        registrationno: number;
-        owner: { id: number; name: string; address: string };
-        isConnected: boolean;
-    }
-    interface ICustomer {
-        id: number;
-        name: string;
-        address: string;
-    }
-
+// tslint:disable-next-line:class-name
+interface IVehicle {
+  id: number;
+  name: string;
+  vin: string;
+  registrationno: number;
+  owner: { id: number; name: string; address: string };
+  isConnected: boolean;
+}
+interface ICustomer {
+  id: number;
+  name: string;
+  address: string;
+}
 </script>
 
 <style>
-    /* Space out content a bit */
-    body {
-    padding-top: 20px;
-    padding-bottom: 20px;
-    }
+/* Space out content a bit */
+body {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
 
-    /* Everything but the jumbotron gets side spacing for mobile first views */
-    .header,
-    .marketing,
-    .footer {
-    padding-right: 15px;
-    padding-left: 15px;
-    }
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+  padding-right: 15px;
+  padding-left: 15px;
+}
 
-    /* Custom page header */
-    .header {
-    border-bottom: 1px solid #e5e5e5;
-    }
-    /* Make the masthead heading the same height as the navigation */
-    .header h3 {
-    padding-bottom: 19px;
-    margin-top: 0;
-    margin-bottom: 0;
-    line-height: 40px;
-    }
+/* Custom page header */
+.header {
+  border-bottom: 1px solid #e5e5e5;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+  padding-bottom: 19px;
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 40px;
+}
 
-    /* Custom page footer */
-    .footer {
-    padding-top: 19px;
-    color: #777;
-    border-top: 1px solid #e5e5e5;
-    }
+/* Custom page footer */
+.footer {
+  padding-top: 19px;
+  color: #777;
+  border-top: 1px solid #e5e5e5;
+}
 
-    /* Customize container */
-    @media (min-width: 586px) {
-    .container {
+/* Customize container */
+@media (min-width: 586px) {
+  .container {
     max-width: 950px;
-    }
-    }
+  }
+}
 
-    .container-narrow > hr {
-    margin: 30px 0;
-    }
+.container-narrow > hr {
+  margin: 30px 0;
+}
 
-    /* Main marketing message and sign up button */
-    .jumbotron {
-    text-align: center;
-    border-bottom: 1px solid #e5e5e5;
-    }
+/* Main marketing message and sign up button */
+.jumbotron {
+  text-align: center;
+  border-bottom: 1px solid #e5e5e5;
+}
 
-    .jumbotron .btn {
-    padding: 14px 24px;
-    font-size: 21px;
-    }
+.jumbotron .btn {
+  padding: 14px 24px;
+  font-size: 21px;
+}
 
-    /* Supporting marketing content */
-    .marketing {
-    margin: 40px 0;
-    }
+/* Supporting marketing content */
+.marketing {
+  margin: 40px 0;
+}
 
-    .marketing p + h4 {
-    margin-top: 28px;
-    }
+.marketing p + h4 {
+  margin-top: 28px;
+}
 
-    /* Responsive: Portrait tablets and up */
-    @media screen and (min-width: 768px) {
-    /* Remove the padding we set earlier */
-    .header,
-    .marketing,
-    .footer {
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 768px) {
+  /* Remove the padding we set earlier */
+  .header,
+  .marketing,
+  .footer {
     padding-right: 0;
     padding-left: 0;
-    }
-    /* Space out the masthead */
-    .header {
+  }
+  /* Space out the masthead */
+  .header {
     margin-bottom: 30px;
-    }
-    /* Remove the bottom border on the jumbotron for visual effect */
-    .jumbotron {
+  }
+  /* Remove the bottom border on the jumbotron for visual effect */
+  .jumbotron {
     border-bottom: 0;
-    }
-    }
-
-
-
+  }
+}
 </style>
-

@@ -12,7 +12,7 @@ import VehicleList from "./components/VehicleList.vue";
 @Component({
   components: {
     HelloWorld,
-      VehicleList
+    VehicleList
   }
 })
 export default class App extends Vue {}
