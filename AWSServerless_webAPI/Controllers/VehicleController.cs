@@ -33,18 +33,12 @@ namespace AWSServerless_webAPI.Controllers
         [ActionName("monitor")]
         public IActionResult Monitor()
         {
+          
             currentTimeManager.Configure(() =>
-            hubContext.Clients.All.VehicleStatusChange(this.datamanager.GetData_SignalR()),500,10000);
+            hubContext.Clients.All.VehicleStatusChange(this.datamanager.GetData_SignalR()),3000,60000);
             return Ok(new { Message = "Request Completed" });
         }
 
-        [HttpPost]
-        [ActionName("filterData")]
-        public List<Vehicle> FilterData([FromBody]dynamic filter)
-        {
-            return this.datamanager.FilterData(filter);
-            
-        }
 
         [HttpGet]
         [ActionName("monitor_noSignalR")]

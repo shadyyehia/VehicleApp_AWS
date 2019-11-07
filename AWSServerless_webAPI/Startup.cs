@@ -20,9 +20,14 @@ namespace AWSServerless_webAPI
         const string MyAllowSpecificOrigins = "CORSPolicy";
         const string HubPathString = "HubPathString";
         const string SignalR_Enabled= "SignalR_Enabled";
+        const string SignalR_Endpoint = "Azure:SignalR:ConnectionString";
+        bool SR_Enabled;
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            string signalREnabled = Configuration[SignalR_Enabled];
+            
+            Boolean.TryParse(signalREnabled, out SR_Enabled);
         }
 
         public static IConfiguration Configuration { get; private set; }
@@ -46,7 +51,10 @@ namespace AWSServerless_webAPI
                 });
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddSignalR();
+            if (SR_Enabled)
+            {
+                services.AddSignalR().AddAzureSignalR(Configuration[SignalR_Endpoint]);
+            }
             // Add S3 to the ASP.NET Core dependency injection framework.
             services.AddAWSService<Amazon.S3.IAmazonS3>();
             //services.AddCors();
@@ -69,15 +77,13 @@ namespace AWSServerless_webAPI
             app.UseHttpsRedirection();
             app.UseMvc();
             //TODO: Remove this flag,when fixed on production
-            string signalREnabled =Configuration[SignalR_Enabled];
-            bool SR_Enabled;
-            Boolean.TryParse(signalREnabled, out SR_Enabled);
+           
 
             if (SR_Enabled) 
             {
-                app.UseSignalR(route =>
+                app.UseAzureSignalR(route =>
                 {
-                    route.MapHub<VehicleHub>(Configuration[Startup.HubPathString]);
+                    route.MapHub<VehicleHub>(Configuration[HubPathString]);
                 });
             }
           

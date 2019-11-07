@@ -25,6 +25,7 @@ namespace AWSServerless_webAPI.Helpers
             _action = action;   
             if(_timer!=null) _timer.Dispose();
             _timer = new Timer(Execute, _autoResetEvent, firstdelayByMilliSeconds, period);
+            
         }
         public void Execute(object stateInfo)
         {

@@ -6,12 +6,10 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import HelloWorld from "./components/HelloWorld.vue";
 import VehicleList from "./components/VehicleList.vue";
 
 @Component({
   components: {
-    HelloWorld,
     VehicleList
   }
 })

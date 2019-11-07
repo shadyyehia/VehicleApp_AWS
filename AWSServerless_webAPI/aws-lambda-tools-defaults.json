@@ -13,6 +13,6 @@
     "s3-prefix"     : "AWSServerless_webAPI/",
     "template"      : "serverless.template",
     "template-parameters" : "\"ShouldCreateBucket\"=\"true\";\"BucketName\"=\"\"",
-    "s3-bucket"           : "vuejs3",
+    "s3-bucket"           : "vehicle-webapi",
     "stack-name"          : "VueJSDotNETCORE"
 }

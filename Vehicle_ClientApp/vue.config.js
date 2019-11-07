@@ -4,7 +4,7 @@ module.exports = {
       registry: undefined,
       awsProfile: "default",
       region: "us-west-2",
-      bucket: "vue-clientapp",
+      bucket: "vehiclelist-clientapp",
       createBucket: true,
       staticHosting: true,
       staticIndexPage: "index.html",
@@ -12,11 +12,14 @@ module.exports = {
       assetPath: "dist",
       assetMatch: "**",
       deployPath: "/",
-      acl: "bucket-owner-full-control",
+      acl: "public-read-write",
       pwa: false,
       enableCloudfront: false,
       uploadConcurrency: 5,
       pluginVersion: "3.0.0"
     }
+  },
+  configureWebpack:{
+    devtool: "source-map"
   }
 };

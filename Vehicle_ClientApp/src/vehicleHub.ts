@@ -25,7 +25,7 @@ export default {
       connection.on("VehicleStatusChange", data => {
         vehicleHub.$emit("status-changed", { data });
       });
-      let startedPromise = null;
+      let startedPromise:any = null;
       var start = function startFn() {
         startedPromise = connection.start().catch(err => {
           console.error("Failed to connect with hub", err);

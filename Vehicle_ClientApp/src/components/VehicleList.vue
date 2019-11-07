@@ -4,7 +4,7 @@
       <div class="col-md-12">
         <h4>Vehicle List</h4>
         <div class="table-responsive">
-          <table id="vehicleTable" class="table table-bordred table-striped">
+          <table id="vehicleTable"  class="table table-bordred table-striped">
             <thead>
               <th>No.</th>
               <th>VIN</th>
@@ -21,28 +21,25 @@
                   <select class="form-control" v-model="selectedCustomerId">
                     <option v-bind:value="-1"></option>
                     <option
-                      v-for="cust in CustomerList"
+                      v-for="cust in customerlist"
                       v-bind:value="cust.id"
-                      v-bind:key="cust.id"
-                    >
-                      {{ cust.name }}
-                    </option>
+                      v-bind:key="cust.id">{{ cust.name }}</option>
                   </select>
                 </div>
               </th>
               <th>
                 <div class="form-group">
                   <select class="form-control" v-model="selectedStatus">
-                    <option :value="-1"></option>
-                    <option :value="1">Connected</option>
-                    <option :value="0">Disconnected</option>
+                    <option value=""></option>
+                    <option :value="true">Connected</option>
+                    <option :value="false">Disconnected</option>
                   </select>
                 </div>
               </th>
             </thead>
 
             <tbody>
-              <tr v-for="(vehicle, index) in vehicleList" v-bind:key="index">
+              <tr  v-for="(vehicle, index) in filteredList" v-bind:key="index">
                 <td>{{ index + 1 }}</td>
                 <td>{{ vehicle.vin }}</td>
                 <td>{{ vehicle.registrationNo }}</td>
@@ -51,6 +48,9 @@
               </tr>
             </tbody>
           </table>
+          <div v-if="!loaded">
+             The list gets updated every 1 minute...
+          </div>
         </div>
       </div>
     </div>
@@ -61,6 +61,7 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import axios from "axios";
+import { isBoolean } from "util";
 declare var process: {
   env: {
     NODE_ENV: string;
@@ -73,14 +74,23 @@ export default class VehicleListComponent extends Vue {
   // $ = JQuery;
 
   vehicleList: IVehicle[] = [];
-  CustomerList: ICustomer[] = [];
-  @Prop() selectedCustomerId: number | undefined;
-  @Prop() selectedStatus: any;
-  @Watch("selectedStatus") onselectedStatus() {
-    this.filterData();
-  }
-  @Watch("selectedCustomerId") onselectedCustomer() {
-    this.filterData();
+  customerlist: ICustomer[] = [];
+  selectedCustomerId: number | null = -1;
+    selectedStatus: boolean | string = "";
+  loaded = false;
+  get filteredList() {
+    return this.vehicleList.filter(item => {
+      let filtered = true;
+      if (this.selectedCustomerId! > -1) {
+        filtered = item.owner.id == this.selectedCustomerId;
+      }
+
+      if (filtered && this.selectedStatus !== "") {
+        filtered = item.isConnected == this.selectedStatus;
+      }
+
+      return filtered;
+    });
   }
   created() {
     // listen to score changes coming from SignalR events
@@ -95,12 +105,13 @@ export default class VehicleListComponent extends Vue {
   // tslint:disable-next-line:typedef
   onStatusChanged({ data }: { data: any }) {
     this.vehicleList = data;
-    console.log("notification from SignalR");
+      console.log("notification from SignalR");
+      this.loaded = true;
     // if (this.question.id !== questionId) return
     // object.assign(this.question, { score })
   }
   mounted() {
-    this.fillCustomerList();
+    this.fillcustomerlist();
     this.startMonitor();
   }
   // tslint:disable-next-line:typedef
@@ -111,14 +122,14 @@ export default class VehicleListComponent extends Vue {
       return "Disconnected";
     }
   }
-  fillCustomerList() {
+  fillcustomerlist() {
     var promise1 = axios.get(
       process.env.VUE_APP_WEBAPI + "/api/vehicle/getCustomers"
     );
 
     promise1
       .then((response: any) => {
-        this.CustomerList = response.data;
+        this.customerlist = response.data;
         return response.data;
 
         //console.log(response.data);
@@ -127,30 +138,6 @@ export default class VehicleListComponent extends Vue {
         //console.log(error);
       });
     return promise1;
-  }
-  filterData() {
-    var status = null;
-    if (this.selectedStatus === 1) {
-      status = true;
-    } else if (this.selectedStatus === 0) {
-      status = false;
-    }
-
-    axios({
-      method: "POST",
-      url: process.env.VUE_APP_WEBAPI + "/api/vehicle/filterData",
-      data: {
-        customerId: this.selectedCustomerId,
-        status: status
-      }
-    })
-      .then((response: any) => {
-        this.vehicleList = response.data;
-        console.log("data filtered");
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
   }
   startMonitor() {
     if (process.env.VUE_APP_SignalR_ENABLED == "true") {
@@ -166,6 +153,7 @@ export default class VehicleListComponent extends Vue {
         });
       return promise;
     } else {
+      this.montor_noSignalR();
       setInterval(() => {
         this.montor_noSignalR();
       }, 10000);
@@ -178,9 +166,7 @@ export default class VehicleListComponent extends Vue {
     promise
       .then((response: any) => {
         this.vehicleList = response.data;
-        console.log(
-          "Long polling used, SignalR is not enabled in configurationsy"
-        );
+        console.log("Ajax used, SignalR is not enabled in configurations");
       })
       .catch((error: any) => {
         console.log(error);
